@@ -621,23 +621,24 @@ fn update_navmesh_asset(
                 // TODO: rotate this to get the value in the correct space
                 mesh.layers[*layer_id as usize].offset = global_transform.translation().xz();
 
-                let stitch_segments =
-                    settings
-                        .stitches
-                        .iter()
-                        .filter_map(|((from, to), segment)| {
-                            let other = if from == layer_id {
-                                to
-                            } else if to == layer_id {
-                                from
-                            } else {
-                                return None;
-                            };
-                            Some((other, [segment[0], segment[1]]))
-                        });
+                let stitch_segments: Vec<(u8, [Vec2; 2])> = settings
+                    .stitches
+                    .par_iter()
+                    .filter_map(|((from, to), segment)| {
+                        let other = if from == layer_id {
+                            to
+                        } else if to == layer_id {
+                            from
+                        } else {
+                            return None;
+                        };
+                        Some((*other, [segment[0], segment[1]]))
+                    })
+                    .collect();
+
                 let layer_from = &mesh.layers[*layer_id as usize];
                 let mut stitch_vertices = vec![];
-                'stitching: for (target_layer, stitch_segment) in stitch_segments {
+                'stitching: for (target_layer, stitch_segment) in stitch_segments.iter() {
                     if mesh.layers.len() < *target_layer as usize + 1 {
                         *status = NavMeshStatus::Invalid;
                         continue 'stitching;
@@ -667,8 +668,8 @@ fn update_navmesh_asset(
                     }
 
                     let stitch_indices = indices_from
-                        .into_iter()
-                        .zip(indices_to.into_iter())
+                        .into_par_iter()
+                        .zip(indices_to.into_par_iter())
                         .collect::<Vec<_>>();
                     for indices in &stitch_indices {
                         if (layer_from.vertices[indices.0].coords + layer_from.offset)
