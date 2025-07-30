@@ -7,11 +7,9 @@ use bevy::{
 const RESOLUTION: u32 = 32;
 
 mod aabb;
-#[cfg(feature = "avian2d")]
-pub(crate) mod avian2d;
-#[cfg(feature = "avian3d")]
-pub(crate) mod avian3d;
 pub(crate) mod cached;
+#[cfg(feature = "parry2d")]
+pub(crate) mod parry2d;
 pub(crate) mod primitive;
 
 /// Trait to mark a component as the source of position and shape of an obstacle.

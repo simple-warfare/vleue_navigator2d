@@ -1,24 +1,24 @@
 # Navigation for Bevy with NavMesh
 
 ![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)
-[![Release Doc](https://docs.rs/vleue_navigator/badge.svg)](https://docs.rs/vleue_navigator)
-[![Crate](https://img.shields.io/crates/v/vleue_navigator.svg)](https://crates.io/crates/vleue_navigator)
+[![Release Doc](https://docs.rs/vleue_navigator2d/badge.svg)](https://docs.rs/vleue_navigator2d)
+[![Crate](https://img.shields.io/crates/v/vleue_navigator2d.svg)](https://crates.io/crates/vleue_navigator2d)
 
 Navigation mesh for [Bevy](http://github.com/bevyengine/bevy) using [Polyanya](https://github.com/vleue/polyanya).
 
-![map with many points finding their paths](https://raw.githubusercontent.com/vleue/vleue_navigator/main/screenshots/many.png)
+![map with many points finding their paths](https://raw.githubusercontent.com/vleue/vleue_navigator2d/main/screenshots/many.png)
 
-Check out the [WASM demos](https://vleue.github.io/vleue_navigator/)
+Check out the [WASM demos](https://vleue.github.io/vleue_navigator2d/)
 
 ## Usage
 
 ### From a prebuilt NavMesh
 
-Loading a mesh from a gLTF file, then building a `NavMesh` from it and using it for getting paths. See [gltf.rs](https://github.com/vleue/vleue_navigator/blob/main/examples/gltf.rs) and [`NavMesh::from_bevy_mesh`](https://docs.rs/vleue_navigator/latest/vleue_navigator/struct.NavMesh.html#method.from_bevy_mesh).
+Loading a mesh from a gLTF file, then building a `NavMesh` from it and using it for getting paths. See [gltf.rs](https://github.com/vleue/vleue_navigator2d/blob/main/examples/gltf.rs) and [`NavMesh::from_bevy_mesh`](https://docs.rs/vleue_navigator2d/latest/vleue_navigator2d/struct.NavMesh.html#method.from_bevy_mesh).
 
 ### From obstacle components
 
-Spawn entities marked as obstacles, create the NavMesh live from them. See [auto_navmesh_aabb](https://github.com/vleue/vleue_navigator/blob/main/examples/auto_navmesh_aabb.rs) and [`NavMeshUpdaterPlugin`](https://docs.rs/vleue_navigator/latest/vleue_navigator/prelude/struct.NavmeshUpdaterPlugin.html).
+Spawn entities marked as obstacles, create the NavMesh live from them. See [auto_navmesh_aabb](https://github.com/vleue/vleue_navigator2d/blob/main/examples/auto_navmesh_aabb.rs) and [`NavMeshUpdaterPlugin`](https://docs.rs/vleue_navigator2d/latest/vleue_navigator2d/prelude/struct.NavmeshUpdaterPlugin.html).
 
 ## Example videos
 
@@ -44,7 +44,7 @@ NavMesh building:
 
 ## Bevy Supported Versions
 
-| Bevy | vleue_navigator | avian |
+| Bevy | vleue_navigator2d | avian |
 | ---- | --------------- | ----- |
 | 0.16 | 0.12            | 0.3   |
 | 0.15 | 0.11.1          | 0.2   |

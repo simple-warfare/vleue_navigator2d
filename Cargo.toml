@@ -1,5 +1,5 @@
 [package]
-name = "vleue_navigator"
+name = "vleue_navigator2d"
 version = "0.12.0"
 authors = ["François Mockers <francois.mockers@vleue.com>"]
 edition = "2024"
@@ -7,41 +7,45 @@ license = "MIT OR Apache-2.0"
 keywords = ["pathfinding", "bevy", "navmesh", "navigation"]
 readme = "README.md"
 description = "Navmesh plugin for Bevy"
-repository = "https://github.com/vleue/vleue_navigator"
-homepage = "https://github.com/vleue/vleue_navigator"
-documentation = "https://docs.rs/vleue_navigator"
+repository = "https://github.com/vleue/vleue_navigator2d"
+homepage = "https://github.com/vleue/vleue_navigator2d"
+documentation = "https://docs.rs/vleue_navigator2d"
 categories = ["game-development"]
 
 [dependencies]
-itertools = "0.13"
+itertools = "0.14"
 tracing = { version = "0.1", optional = true }
 log = "0.4.27"
 
-[dependencies.avian2d]
-version = "0.3"
-features = ["2d", "f32", "parry-f32"]
-default-features = false
+[dependencies.parry2d]
+version = "0.22"
 optional = true
 
-[dependencies.avian3d]
-version = "0.3"
-features = ["3d", "f32", "parry-f32"]
-default-features = false
+[dependencies.rayon]
+version = "1.10.0"
+
+[dependencies.nalgebra]
+version = "0.33"
+features = ["convert-glam029"]
+optional = true
+
+[dependencies.bitflags]
+version = "2.9"
 optional = true
 
 [dependencies.polyanya]
-version = "0.13.0"
+git = "https://github.com/simple-warfare/polyanya.git"
 
 [dependencies.bevy]
-version = "0.16.0"
+version = "0.16"
 features = ["bevy_render", "bevy_asset", "bevy_log"]
 default-features = false
 
 [dev-dependencies]
-rand = "0.8"
+rand = "0.9"
 
 [dev-dependencies.bevy]
-version = "0.16.0"
+version = "0.16"
 features = [
     "bevy_window",
     "bevy_ui",
@@ -65,27 +69,22 @@ features = [
 default-features = false
 
 [features]
-default = ["debug-with-gizmos"]
+default = ["debug-with-gizmos", "parry2d"]
 debug-with-gizmos = ["bevy/bevy_gizmos"]
 detailed-layers = ["polyanya/detailed-layers"]
-avian2d = ["dep:avian2d"]
-avian3d = ["dep:avian3d"]
+parry2d = ["dep:parry2d", "dep:nalgebra", "dep:bitflags"]
 
 [[example]]
-name = "auto_navmesh_avian2d"
-required-features = ["avian2d"]
+name = "auto_navmesh_parry2d"
+required-features = ["parry2d"]
 
 [[example]]
-name = "auto_navmesh_avian3d"
-required-features = ["avian3d"]
+name = "auto_navmesh_parry2d_compound"
+required-features = ["parry2d"]
 
 [[example]]
-name = "auto_navmesh_avian3d_inclined"
-required-features = ["avian3d"]
-
-[[example]]
-name = "gltf_avian3d"
-required-features = ["avian3d", "avian3d/collider-from-mesh"]
+name = "many_navmesh_parry2d"
+required-features = ["parry2d"]
 
 [[example]]
 name = "layers"

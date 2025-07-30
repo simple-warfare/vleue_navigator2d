@@ -11,7 +11,7 @@ use bevy::{
     window::{PrimaryWindow, WindowResized},
 };
 
-use vleue_navigator::{NavMesh, VleueNavigatorPlugin};
+use vleue_navigator2d::{NavMesh, VleueNavigatorPlugin};
 
 fn main() {
     App::new()
@@ -162,7 +162,7 @@ fn on_mesh_change(
             *current_mesh_entity = Some(
                 commands
                     .spawn((
-                        Mesh2d(meshes.add(navmesh.to_mesh()).into()),
+                        Mesh2d(meshes.add(navmesh.to_mesh())),
                         Transform::from_translation(Vec3::new(
                             -mesh.size.x / 2.0 * factor,
                             -mesh.size.y / 2.0 * factor,
