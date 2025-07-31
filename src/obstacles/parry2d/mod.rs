@@ -114,8 +114,6 @@ impl InnerObstacleSource for TypedShape<'_> {
                     .collect(),
             ],
             TypedShape::Compound(shape) => {
-                let mut triangulation = DelaunayTriangulation::<Point2<f32>>::default();
-
                 let merge_points: Vec<Point2<f32>> = shape
                     .shapes()
                     .par_iter()
@@ -137,22 +135,20 @@ impl InnerObstacleSource for TypedShape<'_> {
                     .flatten()
                     .map(|position| Point2::<f32>::new(position.x, position.y))
                     .collect();
+                let triangulation =
+                    DelaunayTriangulation::<Point2<f32>>::bulk_load_stable(merge_points).unwrap();
 
-                for position in merge_points.into_iter() {
-                    triangulation.insert(position).unwrap();
-                }
-
-                let spade_p_to_vec2 = |p: Point2<f32>| Vec2::new(p.x, p.y);
+                let spade_p_to_vec2 = |p: &Point2<f32>| Vec2::new(p.x, p.y);
 
                 triangulation
-                    .vertices()
-                    .chunks(3)
-                    .into_iter()
-                    .map(|mut p| {
+                    .inner_faces()
+                    .map(|face| {
+                        let vertices = face.vertices();
+
                         vec![
-                            spade_p_to_vec2(p.nth(0).unwrap().position()),
-                            spade_p_to_vec2(p.nth(1).unwrap().position()),
-                            spade_p_to_vec2(p.nth(2).unwrap().position()),
+                            spade_p_to_vec2(&vertices[0].position()),
+                            spade_p_to_vec2(&vertices[1].position()),
+                            spade_p_to_vec2(&vertices[2].position()),
                         ]
                     })
                     .collect()
