@@ -13,9 +13,11 @@ use crate::{
     world_to_mesh,
 };
 use bevy::prelude::*;
+use itertools::Itertools;
 use nalgebra::{Const, OPoint};
-use parry2d::shape::TypedShape;
+use parry2d::shape::{Triangle, TypedShape};
 use rayon::prelude::*;
+use spade::{DelaunayTriangulation, Point2, Triangulation};
 
 impl ObstacleSource for SharedShapeStorage {
     fn get_polygons(
@@ -111,24 +113,50 @@ impl InnerObstacleSource for TypedShape<'_> {
                     .map(to_navmesh)
                     .collect(),
             ],
-            TypedShape::Compound(shape) => shape
-                .shapes()
-                .par_iter()
-                .flat_map(|(iso, shape)| {
-                    let global_iso = Isometry3d::from_translation(obstacle_transform.translation())
-                        * Isometry3d::from_rotation(obstacle_transform.rotation());
+            TypedShape::Compound(shape) => {
+                let mut triangulation = DelaunayTriangulation::<Point2<f32>>::default();
 
-                    let iso = Isometry3d::from_xyz(iso.translation.x, iso.translation.y, 0.)
-                        * Isometry3d::from_rotation(Quat::from_rotation_z(f32::to_radians(
-                            -iso.rotation.angle(),
-                        )));
-                    shape.as_typed_shape().get_polygon(
-                        &GlobalTransform::from(Transform::from_isometry(global_iso * iso)),
-                        navmesh_transform,
-                        (up, _shift),
-                    )
-                })
-                .collect(),
+                let merge_points: Vec<Point2<f32>> = shape
+                    .shapes()
+                    .par_iter()
+                    .flat_map(|(iso, shape)| {
+                        let global_iso =
+                            Isometry3d::from_translation(obstacle_transform.translation())
+                                * Isometry3d::from_rotation(obstacle_transform.rotation());
+
+                        let iso = Isometry3d::from_xyz(iso.translation.x, iso.translation.y, 0.)
+                            * Isometry3d::from_rotation(Quat::from_rotation_z(f32::to_radians(
+                                -iso.rotation.angle(),
+                            )));
+                        shape.as_typed_shape().get_polygon(
+                            &GlobalTransform::from(Transform::from_isometry(global_iso * iso)),
+                            navmesh_transform,
+                            (up, _shift),
+                        )
+                    })
+                    .flatten()
+                    .map(|position| Point2::<f32>::new(position.x, position.y))
+                    .collect();
+
+                for position in merge_points.into_iter() {
+                    triangulation.insert(position).unwrap();
+                }
+
+                let spade_p_to_vec2 = |p: Point2<f32>| Vec2::new(p.x, p.y);
+
+                triangulation
+                    .vertices()
+                    .chunks(3)
+                    .into_iter()
+                    .map(|mut p| {
+                        vec![
+                            spade_p_to_vec2(p.nth(0).unwrap().position()),
+                            spade_p_to_vec2(p.nth(1).unwrap().position()),
+                            spade_p_to_vec2(p.nth(2).unwrap().position()),
+                        ]
+                    })
+                    .collect()
+            }
             TypedShape::ConvexPolygon(shape) => vec![
                 shape
                     .points()

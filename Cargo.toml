@@ -36,6 +36,9 @@ optional = true
 [dependencies.polyanya]
 version = "0.13.0"
 
+[dependencies.spade]
+version = "2.14.0"
+
 [dependencies.bevy]
 version = "0.16"
 features = ["bevy_render", "bevy_asset", "bevy_log"]
