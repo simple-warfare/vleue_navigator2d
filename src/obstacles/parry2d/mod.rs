@@ -15,7 +15,6 @@ use crate::{
 use bevy::prelude::*;
 use nalgebra::{Const, OPoint};
 use parry2d::shape::TypedShape;
-use polyanya::Triangulation;
 use rayon::prelude::*;
 
 impl ObstacleSource for SharedShapeStorage {

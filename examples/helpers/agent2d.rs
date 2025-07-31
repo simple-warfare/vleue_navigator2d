@@ -50,7 +50,7 @@ pub fn give_target_to_navigator<const SIZE: u32, const X: u32, const Y: u32>(
     for (entity, transform, special_navmesh_id) in &navigator {
         let navmesh = match special_navmesh_id {
             Some(navmesh_id) => navmesh.get(navmesh_id.0).expect("navmesh not found"),
-            None => navmesh.iter().next().expect("no navmesh found"),
+            None => return,
         };
 
         let Some(navmesh) = navmeshes.get(navmesh) else {
