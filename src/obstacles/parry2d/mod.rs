@@ -4,8 +4,6 @@ pub mod primitives;
 pub mod shape;
 pub mod transform;
 
-use std::ops::Add;
-
 use crate::{
     obstacles::{
         RESOLUTION,
@@ -14,12 +12,11 @@ use crate::{
     prelude::{ObstacleSource, SharedShapeStorage},
     world_to_mesh,
 };
-use bevy::{platform::collections::HashMap, prelude::*};
-use itertools::Itertools;
+use bevy::prelude::*;
 use nalgebra::{Const, OPoint};
-use parry2d::shape::{Triangle, TypedShape};
+use parry2d::shape::TypedShape;
+use polyanya::Triangulation;
 use rayon::prelude::*;
-use spade::{DelaunayTriangulation, Point2, Triangulation};
 
 impl ObstacleSource for SharedShapeStorage {
     fn get_polygons(
@@ -116,6 +113,26 @@ impl InnerObstacleSource for TypedShape<'_> {
                     .collect(),
             ],
             TypedShape::Compound(shape) => {
+                shape
+                    .shapes()
+                    .par_iter()
+                    .flat_map(|(iso, shape)| {
+                        let global_iso =
+                            Isometry3d::from_translation(obstacle_transform.translation())
+                                * Isometry3d::from_rotation(obstacle_transform.rotation());
+
+                        let iso = Isometry3d::from_xyz(iso.translation.x, iso.translation.y, 0.)
+                            * Isometry3d::from_rotation(Quat::from_rotation_z(f32::to_radians(
+                                -iso.rotation.angle(),
+                            )));
+                        shape.as_typed_shape().get_polygon(
+                            &GlobalTransform::from(Transform::from_isometry(global_iso * iso)),
+                            navmesh_transform,
+                            (up, _shift),
+                        )
+                    })
+                    .collect()
+                /*
                 let mut merge_points = Vec::new();
                 let all_points: Vec<Vec<Vec2>> = shape
                     .shapes()
@@ -168,6 +185,7 @@ impl InnerObstacleSource for TypedShape<'_> {
                     .collect();
                 info!("{:?}", triangles);
                 triangles
+                 */
             }
             TypedShape::ConvexPolygon(shape) => vec![
                 shape
