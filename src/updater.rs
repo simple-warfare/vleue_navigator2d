@@ -241,7 +241,7 @@ fn build_navmesh<T: ObstacleSource>(
             })
             .collect();
         
-        base.add_obstacles(obstacle_polys.into_iter());
+        base.add_obstacles(obstacle_polys);
         if settings.simplify != 0.0 {
             base.simplify(settings.simplify);
         }
@@ -263,7 +263,7 @@ fn build_navmesh<T: ObstacleSource>(
             (!p.is_empty()).then(|| p.into_par_iter().map(|v| v / scale).collect::<Vec<_>>())
         })
         .collect();
-    triangulation.add_obstacles(obstacle_polys.into_iter());
+    triangulation.add_obstacles(obstacle_polys);
 
     if settings.simplify != 0.0 {
         triangulation.simplify(settings.simplify);
