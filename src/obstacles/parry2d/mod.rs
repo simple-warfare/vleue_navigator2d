@@ -4,6 +4,8 @@ pub mod primitives;
 pub mod shape;
 pub mod transform;
 
+use std::ops::Add;
+
 use crate::{
     obstacles::{
         RESOLUTION,
@@ -12,7 +14,7 @@ use crate::{
     prelude::{ObstacleSource, SharedShapeStorage},
     world_to_mesh,
 };
-use bevy::prelude::*;
+use bevy::{platform::collections::HashMap, prelude::*};
 use itertools::Itertools;
 use nalgebra::{Const, OPoint};
 use parry2d::shape::{Triangle, TypedShape};
@@ -114,7 +116,8 @@ impl InnerObstacleSource for TypedShape<'_> {
                     .collect(),
             ],
             TypedShape::Compound(shape) => {
-                let merge_points: Vec<Point2<f32>> = shape
+                let mut merge_points = Vec::new();
+                let all_points: Vec<Vec<Vec2>> = shape
                     .shapes()
                     .par_iter()
                     .flat_map(|(iso, shape)| {
@@ -132,15 +135,26 @@ impl InnerObstacleSource for TypedShape<'_> {
                             (up, _shift),
                         )
                     })
-                    .flatten()
-                    .map(|position| Point2::<f32>::new(position.x, position.y))
                     .collect();
-                let triangulation =
-                    DelaunayTriangulation::<Point2<f32>>::bulk_load_stable(merge_points).unwrap();
+
+                for p in all_points.iter().flatten() {
+                    if merge_points.contains(p) {
+                        merge_points.retain(|m_p| m_p != p);
+                    } else {
+                        merge_points.push(*p);
+                    }
+                }
+                let triangulation = DelaunayTriangulation::<Point2<f32>>::bulk_load_stable(
+                    merge_points
+                        .iter()
+                        .map(|position| Point2::<f32>::new(position.x, position.y))
+                        .collect(),
+                )
+                .unwrap();
 
                 let spade_p_to_vec2 = |p: &Point2<f32>| Vec2::new(p.x, p.y);
 
-                triangulation
+                let triangles = triangulation
                     .inner_faces()
                     .map(|face| {
                         let vertices = face.vertices();
@@ -151,7 +165,9 @@ impl InnerObstacleSource for TypedShape<'_> {
                             spade_p_to_vec2(&vertices[2].position()),
                         ]
                     })
-                    .collect()
+                    .collect();
+                info!("{:?}", triangles);
+                triangles
             }
             TypedShape::ConvexPolygon(shape) => vec![
                 shape

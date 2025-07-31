@@ -91,16 +91,8 @@ name = "many_navmesh_parry2d"
 required-features = ["parry2d"]
 
 [[example]]
-name = "layers"
-required-features = ["avian3d", "detailed-layers"]
-
-[[example]]
-name = "layers_basic"
-required-features = ["avian3d"]
-
-[[example]]
-name = "layers_inclined"
-required-features = ["avian3d", "detailed-layers"]
+name = "delaunay_triangulation"
+required-features = ["parry2d"]
 
 [package.metadata.docs.rs]
 features = ["detailed-layers"]
