@@ -240,7 +240,7 @@ fn build_navmesh<T: ObstacleSource>(
                 (!p.is_empty()).then(|| p.into_par_iter().map(|v| v / scale).collect::<Vec<_>>())
             })
             .collect();
-
+        
         base.add_obstacles(obstacle_polys.into_iter());
         if settings.simplify != 0.0 {
             base.simplify(settings.simplify);
