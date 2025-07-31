@@ -34,7 +34,7 @@ version = "2.9"
 optional = true
 
 [dependencies.polyanya]
-git = "https://github.com/simple-warfare/polyanya.git"
+version = "0.13.0"
 
 [dependencies.bevy]
 version = "0.16"
